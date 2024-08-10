@@ -1,10 +1,10 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, sync::Arc};
 
 use axum::{
     extract::{Path, State},
     http::StatusCode,
     response::{IntoResponse, Redirect},
-    Json,
+    Extension, Json,
 };
 
 use crate::{RecipeIdentifier, RecipeLookupError, RecipeRepository};
@@ -120,12 +120,13 @@ where
 }
 
 pub async fn static_recipe_file(
+    Extension(static_base_url): Extension<Arc<String>>,
     Path(parameters): Path<HashMap<String, String>>,
 ) -> impl IntoResponse {
     let revision = parameters.get("revision").ok_or(StatusCode::BAD_REQUEST)?;
     let filename = parameters.get("filename").ok_or(StatusCode::BAD_REQUEST)?;
     Ok::<_, StatusCode>(Redirect::temporary(&format!(
-        "http://localhost:8000/{revision}/{filename}"
+        "{static_base_url}/{revision}/{filename}"
     )))
 }
 
@@ -185,6 +186,7 @@ where
 }
 
 pub async fn static_package_file(
+    Extension(static_base_url): Extension<Arc<String>>,
     Path(parameters): Path<HashMap<String, String>>,
 ) -> impl IntoResponse {
     let revision = parameters
@@ -192,7 +194,7 @@ pub async fn static_package_file(
         .ok_or(StatusCode::BAD_REQUEST)?;
     let filename = parameters.get("filename").ok_or(StatusCode::BAD_REQUEST)?;
     Ok::<_, StatusCode>(Redirect::temporary(&format!(
-        "http://localhost:8000/{revision}/{filename}"
+        "{static_base_url}/{revision}/{filename}"
     )))
 }
 

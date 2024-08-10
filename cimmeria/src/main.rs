@@ -1,6 +1,6 @@
-use std::{env, future::Future};
+use std::{env, future::Future, sync::Arc};
 
-use axum::Router;
+use axum::{Extension, Router};
 use chrono::{DateTime, Utc};
 use database::BasicRecipeRepository;
 use tower_http::trace::TraceLayer;
@@ -75,8 +75,10 @@ async fn main() {
     tracing_subscriber::fmt()
         .with_max_level(tracing::Level::DEBUG)
         .init();
-    let db_path = env::var("REPO_DB_PATH").unwrap();
-    let state = BasicRecipeRepository::new(&db_path).await;
+    let db_url = env::var("REPO_DB_URL").expect("REPO_DB_URL must be set in the environment");
+    let static_base_url =
+        env::var("STATIC_BASE_URL").expect("STATIC_BASE_URL must be set in the environment");
+    let state = BasicRecipeRepository::new(&db_url).await;
     let app = Router::new()
         .route(
             "/v2/conans/:name/:version/:user/:channel/latest",
@@ -104,6 +106,7 @@ async fn main() {
         )
         .route("/v1/ping", axum::routing::get(api::ping))
         .with_state(state)
+        .layer(Extension(Arc::new(static_base_url.to_string())))
         .layer(TraceLayer::new_for_http());
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
     axum::serve(listener, app).await.unwrap();
