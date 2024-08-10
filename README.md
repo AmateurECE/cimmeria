@@ -1,3 +1,17 @@
+# Building & Running
+
+To build the OCI image and load it into a running OCI daemon:
+
+```shell-session
+bazel run //cimmeria:load
+```
+
+Then, it should be possible to run the image:
+
+```
+podman run -it --rm -e REPO_DB_URL=... -e STATIC_BASE_URL=... cimmeria:latest
+```
+
 # Development
 
 CONAN_HOME is set by the `.envrc` if dotenv is installed. If dotenv is not
