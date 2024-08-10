@@ -1,3 +1,7 @@
-/target
+MODULE.bazel.lock
+bazel-bin
+bazel-cimmeria
+bazel-out
+bazel-testlogs
 /.conan/
 /test-repo/

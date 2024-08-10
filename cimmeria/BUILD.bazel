@@ -1,0 +1,23 @@
+package(default_visibility = ["//visibility:public"])
+
+load("@rules_rust//rust:defs.bzl", "rust_binary")
+
+rust_binary(
+    name = "cimmeria",
+    srcs = [
+      "src/main.rs",
+      "src/api.rs",
+      "src/database.rs",
+    ],
+    deps = [
+      "@crates//:axum",
+      "@crates//:chrono",
+      "@crates//:serde",
+      "@crates//:sqlx",
+      "@crates//:thiserror",
+      "@crates//:tokio",
+      "@crates//:tower-http",
+      "@crates//:tracing",
+      "@crates//:tracing-subscriber",
+    ],
+)
