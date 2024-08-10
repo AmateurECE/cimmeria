@@ -1,3 +1,27 @@
+bazel_dep(name = "rules_pkg", version = "1.0.1")
+
+#############################################################################
+# OCI Toolchain
+
+bazel_dep(name = "rules_oci", version = "2.0.0-beta1")
+
+oci = use_extension("@rules_oci//oci:extensions.bzl", "oci")
+oci.pull(
+    name = "distroless_cc",
+    # 'latest' is not reproducible, but it's convenient.
+    # During the build we print a WARNING message that includes recommended 'digest' and 'platforms'
+    # values which you can use here in place of 'tag' to pin for reproducibility.
+    tag = "latest",
+    image = "gcr.io/distroless/cc",
+    platforms = ["linux/amd64"],
+)
+
+# For each oci.pull call, repeat the "name" here to expose them as dependencies.
+use_repo(oci, "distroless_cc")
+
+#############################################################################
+# LLVM Toolchain
+
 bazel_dep(name = "toolchains_llvm", version = "v1.1.2")
 
 # To directly use a commit from GitHub, replace commit with the commit you want.
@@ -11,12 +35,15 @@ git_override(
 # Configure and register the toolchain.
 llvm = use_extension("@toolchains_llvm//toolchain/extensions:llvm.bzl", "llvm")
 llvm.toolchain(
-   llvm_version = "18.1.0",
+   llvm_version = "17.0.6",
 )
 
 use_repo(llvm, "llvm_toolchain")
 
 register_toolchains("@llvm_toolchain//:all")
+
+#############################################################################
+# Rust
 
 bazel_dep(name = "rules_rust", version = "0.49.2")
 
